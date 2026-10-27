@@ -547,7 +547,7 @@ def main() -> None:
     uploads = {}
     labels = {"left":"Front left photo", "center":"Front center photo", "right":"Front right photo",
               "small":"Small front photo"}
-    if template_id != "original":
+    if template_id not in {"original","short"}:
         labels = {"center":"Large front photo (optional)"}
         st.caption("One upload fills the large photo shape in this template. The original magazine uses four front photos.")
     for column, (slot, label) in zip(st.columns(len(labels)), labels.items()):
@@ -588,10 +588,14 @@ def main() -> None:
                   for number in range(2,page_count+1)}
     saved_crops.update({number:dict(crop) for number,crop in oval_crops.items()})
     photo_name = "oval" if template_id=="original" else "photo"
+    if template_id=="short":
+        page_count=1
     with st.sidebar:
         st.header("Oval photos" if template_id=="original" else "Content-page photos")
         st.caption("Adjust a page here while keeping its PDF preview visible.")
-        if page_count < 2:
+        if template_id=="short":
+            st.caption("Short PDF content pages have no photo slots, matching the supplied template.")
+        elif page_count < 2:
             st.caption("Paste your article to show its content-page controls.")
         else:
             selected_page = st.selectbox("Oval page" if template_id=="original" else "Photo page",list(range(2,page_count+1)),
