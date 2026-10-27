@@ -220,6 +220,8 @@ def inline_html(block: dict) -> str:
     parts = []
     for run in block["runs"]:
         content = escape(run["text"]).replace("\n", "<br>")
+        if run.get("bullet_marker"):
+            content = f'<span style="vertical-align:-0.35em">{content}</span>'
         if run["bold"]: content = f"<b>{content}</b>"
         if run.get("color"): content = f'<span style="color:{run["color"]}">{content}</span>'
         parts.append(content)

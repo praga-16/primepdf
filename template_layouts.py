@@ -134,7 +134,7 @@ def render(api, article, selected, uploads, photo_crops, oval_photos, oval_crops
             # Keep list labels in the shaped text, including wrapped continuations.
             if block["type"] in {"number","bullet"}:
                 marker = f'{block["number"]}. ' if block["type"]=="number" else "• "
-                block = dict(block,runs=[{"text":marker,"bold":False}]+block["runs"],text=marker+block["text"])
+                block = dict(block,runs=[{"text":marker,"bold":False,"bullet_marker":block["type"]=="bullet"}]+block["runs"],text=marker+block["text"])
             story=api["make_story"](block,css)
             while True:
                 if page is None:
