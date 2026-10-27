@@ -13,8 +13,9 @@ from photos import cover
 ROOT = Path(__file__).resolve().parent
 TEMPLATES = {"original": "Original magazine", "kids": "Children / toys (Blank)",
              "fabric": "Fabric / flowers (Blank 1)", "blue": "Blue geometric (Blank 2)",
-             "teal": "Cream / teal (Blank 3)"}
+             "teal": "Cream / teal (Blank 3)", "short": "Short PDF"}
 PROFILES = {
+    "short": dict(title=[28,630,568,800],color="#a8387b",regions=[[[30,35,565,805]]]),
     "kids": dict(title=[28,60,580,252], color="#202bce", date=[76,38,211,67], date_color="#ffffff", number=[289,807,313,833],
                  regions=[[[25,90,570,796]],[[25,90,570,796]]]),
     "fabric": dict(title=[29,535,566,734], color="#495400", date=[42,34,198,60], number=[283,802,307,823],
@@ -38,6 +39,8 @@ def flow_regions(template, variant_index):
     """One logical page area, with automatic flow around its photo envelope."""
     profile=PROFILES[template]
     area=fitz.Rect(profile["regions"][variant_index][0])
+    if template=="short":
+        return [area]
     photo=fitz.Rect(PHOTO_EXCLUSIONS[template][variant_index])
     above=fitz.Rect(area.x0,area.y0,area.x1,min(area.y1,photo.y0-6))
     below=fitz.Rect(area.x0,max(area.y0,photo.y1+6),area.x1,area.y1)
@@ -86,7 +89,11 @@ def render(api, article, selected, uploads, photo_crops, oval_photos, oval_crops
     title = blocks.pop(next((i for i,b in enumerate(blocks) if b["type"]=="heading"),0)) if blocks else None
     placements = []
     with fitz.open() as output:
-        page = background(output,template,"front",(uploads or {}).get("center"),(photo_crops or {}).get("center"))
+        page = background(output,template,"front",None if template=="short" else (uploads or {}).get("center"),(photo_crops or {}).get("center"))
+        if template=="short":
+            for slot in ("left","center","right","small"):
+                if (uploads or {}).get(slot):
+                    page.insert_image(page.rect,stream=photo_image(template,f"front-{slot}",uploads[slot],**(photo_crops or {}).get(slot,{})))
         if title:
             target = fitz.Rect(profile["title"])
             maximum=round(title.get("font_size") or 42)
@@ -105,8 +112,10 @@ def render(api, article, selected, uploads, photo_crops, oval_photos, oval_crops
             number = len(output)+1
             variant_index = (number-2)%len(profile["regions"])
             variant = f"body{variant_index}"
-            photo = (oval_photos or {}).get(number)
+            photo = None if template=="short" else (oval_photos or {}).get(number)
             page = background(output,template,variant,photo,(oval_crops or {}).get(number))
+            if template=="short":
+                return page,flow_regions(template,variant_index)
             if template=="kids":
                 page.draw_circle((301,820),10,color=None,fill=(.65,0,.45))
             header_css = css + "body{font-size:14pt;}p{line-height:19pt;}"

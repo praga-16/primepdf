@@ -484,3 +484,15 @@ reference PDFs' embedded fonts. Rich text colors, font size, manual line breaks,
 editable PDF previews, optional per-page photos, and the strict 600,000-byte
 export limit also apply to the added templates. Preview edit bounds follow each
 template's actual text regions.
+
+## Short PDF template
+
+Choose **Short PDF** for the supplied `short pdf/1.pdf` cover and `2.pdf`
+content design. It provides four optional cover uploads: left, center, right,
+and the smaller lower photo, each with independent zoom and movement controls.
+Reference heading text is replaced by the editor title. Content pages use the
+supplied corner decorations, natural word spacing, and a continuous full-width
+article area. They contain no date, page-number label, or content-photo slots,
+matching the samples. Paragraphs continue automatically across pages. The same
+editable preview and strict 600,000-byte export limit apply. Required runtime
+artwork and masks are in `assets/templates/short-*`.
